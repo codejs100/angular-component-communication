@@ -1,0 +1,44 @@
+ViewChild and ViewChildern selectors
+    1. Angular Directive
+    2. Custom Directive \ Custom Component
+    3. Template variable
+
+ViewChildern has an observable changes to track changes in DOM
+
+Passing values to Component
+    1. Setting and getting value as bag service
+    2. Communicating through state management service make use of change detection if the shared property is bound to           Template
+        Product.service
+            - create public currentProduct : IProduct | null; property
+        Product-shell-list - set the selected value to the property in product.service
+            selectedProduct(product: IProduct): void {
+                this.productService.currentProduct = product;
+            }
+        Product-shell-detail - create a getter to get the property from the service, the value should bound to template.
+        Angular change detection will takecare of the synch
+            get product() {
+                return this.productService.currentProduct;
+            }
+    3. By using Subject or BehaviourSubject
+        Product.Service - Create an private Subject, public Observable, publuc function to create observer
+            private productChangeSource = new Subject<IProduct | null>();
+            productChangeObservable = this.productChangeSource.asObservable();
+
+            changeProductSelected(product: IProduct | null) {
+                this.productChangeSource.next(product);
+            }
+        Product-shell-list
+          selectedProduct(product: IProduct): void {
+                this.productService.changeProductSelected(product);
+         }
+        Product-shell-detail
+         this.productService.productChangeObservable.subscribe(
+            (data) => this.product = data
+         );
+      
+      BehaviorSubject is same as Subject but it requires a initial value and provide current value on new subscription
+      For BehaviorSubject change the Product.Service
+        private productChangeSource = new BehaviorSubject<IProduct | null>(null);  
+
+
+
